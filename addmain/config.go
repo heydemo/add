@@ -1,9 +1,11 @@
 package addmain
 
 import (
+    "fmt"
 	"os"
 	"path/filepath"
     "os/exec"
+    "github.com/spf13/viper"
 )
 
 type ConfigEnv struct {
@@ -15,12 +17,13 @@ type ConfigEnv struct {
 }
 
 func GetConfigEnv() *ConfigEnv {
-	var config_env ConfigEnv
-	config_env.Config_dir = getConfigDir()
-	config_env.State_dir = getStateDir()
-	config_env.User_bin_dir = filepath.Join(config_env.Config_dir, "bin", "user")
-	config_env.Public_bin_dir = filepath.Join(config_env.Config_dir, "bin", "public")
-	config_env.Core_bin_dir = filepath.Join(config_env.Config_dir, "bin", "core")
+    initConfig()
+    var config_env ConfigEnv
+
+	config_env.State_dir = viper.GetString("state_dir")
+	config_env.User_bin_dir = viper.GetString("user_bin_dir")
+	config_env.Public_bin_dir = viper.GetString("public_bin_dir")
+	config_env.Core_bin_dir = viper.GetString("core_bin_dir")
 
 	ensureDirExists(config_env.Config_dir)
 	ensureDirExists(config_env.State_dir)
@@ -35,6 +38,39 @@ func GetEditor() string {
     return getFirstDefinedEnvVars(
         []string{"VISUAL", "EDITOR"},
         getFirstInstalledExecutable([]string{"nvim", "vim", "vi", "emacs", "nano" }))
+}
+
+func initConfig() {
+    viper.SetConfigName("config")
+    //viper.AddConfigPath(getConfigDir())
+    viper.AddConfigPath("$HOME/.config/add")
+
+    // Find config path
+    if v := os.Getenv("ADD_CONFIG_DIR"); v != "" {
+        viper.AddConfigPath(v)
+    } else if v := os.Getenv("XDG_CONFIG_HOME"); v != "" {
+        viper.AddConfigPath(filepath.Join(v, "add"))
+    } else {
+        viper.AddConfigPath("$HOME/.config/add")
+    }
+
+    viper.SetDefault("editor", GetEditor())
+    viper.SetDefault("state_dir", getStateDirDefault())
+    err := viper.ReadInConfig()
+    if err != nil {
+        panic(fmt.Errorf("Fatal error config file: %s \n", err))
+    }
+
+    configDir := filepath.Dir(viper.ConfigFileUsed())
+    viper.Set("config_dir", configDir)
+    viper.SetDefault("user_bin_dir", filepath.Join(configDir, "bin", "user"))
+    viper.SetDefault("public_bin_dir", filepath.Join(configDir, "bin", "user"))
+    viper.SetDefault("core_bin_dir", filepath.Join(configDir, "bin", "user"))
+
+    if err != nil {
+        panic(err)
+    }
+
 }
 
 func getFirstInstalledExecutable(exes []string) string {
@@ -62,16 +98,14 @@ func getUserHomeDir() string {
 	return home
 }
 
-func getConfigDir() string {
-	return getFirstDefinedEnvVars(
-		[]string{"ADD_CONFIG_DIR", "XDG_CONFIG_HOME"},
-		filepath.Join(getUserHomeDir(), ".config", "add"))
-}
-
-func getStateDir() string {
-	return getFirstDefinedEnvVars(
-		[]string{"ADD_STATE_DIR", "XDG_STATE_HOME"},
-		filepath.Join(getUserHomeDir(), ".local", "state", "add"))
+func getStateDirDefault() string {
+    if v:= os.Getenv("ADD_STATE_DIR"); v != "" {
+        return v
+    } else if v := os.Getenv("XDG_STATE_HOME"); v != "" {
+        return filepath.Join(v, "add")
+    } else {
+        return filepath.Join(getUserHomeDir(), ".local", "state", "add")
+    }
 }
 
 func getFirstDefinedEnvVars(env_vars []string, defaultVal string) string {

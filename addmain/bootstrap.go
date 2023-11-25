@@ -86,6 +86,11 @@ func confirmInstallPrompt(profileFile string) bool {
 	return strings.ToLower(response) == "y"
 }
 
+func GenerateAliases(configEnv *ConfigEnv) {
+    filePath := filepath.Join(configEnv.State_dir, "aliases.sh")
+    writeContent(filePath, getAliasIncludeContent(configEnv))
+}
+
 func Bootstrap() (bool, *ConfigEnv) {
 	configEnv := GetConfigEnv()
     freshInstall := false
@@ -100,8 +105,7 @@ func Bootstrap() (bool, *ConfigEnv) {
 	}
 
     if _, err := os.Stat(aliasesPath); os.IsNotExist(err) {
-        filePath := filepath.Join(configEnv.State_dir, "aliases.sh")
-        writeContent(filePath, getAliasIncludeContent(configEnv))
+        GenerateAliases(configEnv)
     }
 
 	if !isInstalled {

@@ -21,6 +21,8 @@ func Add(filename string, configEnv *ConfigEnv) {
     os.Chmod(path, 0755)
     fmt.Println("Wrote file to", path)
 
+    GenerateAliases(configEnv)
+
 }
 
 func FindExecutable(name string, configEnv *ConfigEnv) string {
