@@ -120,4 +120,3 @@ func getFirstDefinedEnvVars(env_vars []string, defaultVal string) string {
 	}
 	return defaultVal
 }
-
