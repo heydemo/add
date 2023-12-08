@@ -1,10 +1,9 @@
 /*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-
+Copyright © 2023 John De Mott
 */
 package main
 
-import "heydemo/add/cmd"
+import "heydemo/add/cmd/add"
 
 func main() {
 	cmd.Execute()

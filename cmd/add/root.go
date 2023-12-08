@@ -35,12 +35,7 @@ var xCmd = &cobra.Command{
     Short: "Execute command",
     Long: "Executes an add script",
     Run: func(cmd *cobra.Command, args []string) {
-        path := add.FindExecutable(args[0], configEnv)
-        if path == "" {
-            fmt.Println("Script not found")
-            os.Exit(1)
-        }
-        add.Subproc(path, args...)
+        add.Execute(args[0], args[1:], configEnv)
     },
 }
 

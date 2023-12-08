@@ -14,6 +14,7 @@ type ConfigEnv struct {
 	Public_bin_dir string
     Core_bin_dir   string
 	State_dir      string
+    Promptable_dir string
 }
 
 func GetConfigEnv() *ConfigEnv {
@@ -24,6 +25,8 @@ func GetConfigEnv() *ConfigEnv {
 	config_env.User_bin_dir = viper.GetString("user_bin_dir")
 	config_env.Public_bin_dir = viper.GetString("public_bin_dir")
 	config_env.Core_bin_dir = viper.GetString("core_bin_dir")
+    config_env.Config_dir = viper.GetString("config_dir")
+    config_env.Promptable_dir = viper.GetString("promptable_dir")
 
 	ensureDirExists(config_env.Config_dir)
 	ensureDirExists(config_env.State_dir)
@@ -66,6 +69,7 @@ func initConfig() {
     viper.SetDefault("user_bin_dir", filepath.Join(configDir, "bin", "user"))
     viper.SetDefault("public_bin_dir", filepath.Join(configDir, "bin", "user"))
     viper.SetDefault("core_bin_dir", filepath.Join(configDir, "bin", "user"))
+    viper.SetDefault("promptable_dir", filepath.Join(configDir, "promptables"))
 
     if err != nil {
         panic(err)
@@ -116,3 +120,4 @@ func getFirstDefinedEnvVars(env_vars []string, defaultVal string) string {
 	}
 	return defaultVal
 }
+

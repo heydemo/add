@@ -13,15 +13,18 @@ func Add(filename string, configEnv *ConfigEnv) {
 
     // If file does not exist, create it
     if _, err := os.Stat(path); os.IsNotExist(err) {
-        os.WriteFile(path, []byte("#!/bin/bash\n"), 0644)
+        metadata := PromptForMetadata()
+        os.WriteFile(path, []byte(formatMetadata(metadata)), 0644)
+        PrettyPrint(metadata)
     }
 
     Subproc(editor, path)
     // make path executable
     os.Chmod(path, 0755)
-    fmt.Println("Wrote file to", path)
+    //fmt.Println("Wrote file to", path)
 
-    GenerateAliases(configEnv)
+    //GenerateAliases(configEnv)
+    PrettyPrint(editor)
 
 }
 
@@ -42,4 +45,22 @@ func ConfirmPrompt(prompt string) bool {
     var response string
     fmt.Scanln(&response)
     return strings.ToLower(response) == "y"
+}
+
+
+
+func Execute(script string, args []string, configEnv *ConfigEnv) {
+    fmt.Println("Executing", script)
+    path := FindExecutable(script, configEnv)
+    if path == "" {
+        fmt.Println("Script not found")
+        os.Exit(1)
+    }
+
+    metadata := extractMetadata(path)
+    final_args := populatePromptables(metadata.Promptables, args, configEnv)
+    PrettyPrint(metadata)
+    PrettyPrint(final_args)
+
+    Subproc(path, args...)
 }

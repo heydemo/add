@@ -1,0 +1,9 @@
+version: '3.7'
+services:
+  box:
+    image: "debian:latest"
+    command: "tail -f /dev/null"
+    volumes:
+      - ./add:/usr/bin/add
+    environment:
+      FLASK_ENV: development
