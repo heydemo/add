@@ -25,6 +25,10 @@ type PromptableOption struct {
     Props map[string]string
 }
 
+func (p PromptableOption) String() string {
+    return p.Label
+}
+
 // #
 // # Promptable creation
 // #

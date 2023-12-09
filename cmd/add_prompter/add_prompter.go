@@ -4,37 +4,55 @@ Copyright © 2023 John De Mott
 package main
 
 import (
+	"fmt"
 	"os"
-    "fmt"
+	"strings"
+    "path/filepath"
 	"github.com/spf13/cobra"
-)
+    "bufio"
 
-import add "heydemo/add/addmain"
+	add "heydemo/add/addmain"
+)
 
 var freshInstall bool
 var configEnv *add.ConfigEnv
 var promptFile string
+var promptName string
+var promptType string
+var promptDescription string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "add_prompter",
 	Short: "Collects user input based on promptables",
 	Run: func(cmd *cobra.Command, args []string) {
-        fmt.Println("It works")
 
-        var promptable add.Promptable = add.Promptable{
-            Name: "test",
-            Description: "This is a test",
-            Type: "btdevice",
+        if promptFile == "" {
+            fmt.Println("No prompt file specified")
+            os.Exit(1)
         }
 
-        options := add.LoadPromptableOptions(promptable, promptFile)
+        if promptName == "" {
+            fmt.Println("No prompt name specified")
+            os.Exit(1)
+        }
 
+        promptType := strings.TrimSuffix(filepath.Base(promptFile), filepath.Ext(promptFile))
 
-        add.PrettyPrint(options)
-        fmt.Println("All done")
+		var promptable add.Promptable = add.Promptable{
+			Name:        promptName,
+			Description: promptDescription,
+			Type:        promptType,
+		}
 
-    },
+		options := add.LoadPromptableOptions(promptable, promptFile)
+
+		add.PrettyPrint(options)
+
+        Prompt(promptable, options)
+		fmt.Println("All done")
+
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -48,22 +66,25 @@ func Execute() {
 }
 
 func init() {
-    freshInstall, configEnv = add.Bootstrap()
+	freshInstall, configEnv = add.Bootstrap()
 
-    if freshInstall {
-        return
-    }
+	if freshInstall {
+		return
+	}
 
-    rootCmd.PersistentFlags().BoolP("force", "f", false, "Force delete")
-    rootCmd.PersistentFlags().StringVarP(&promptFile, "prompt", "p", "", "Prompt file")
+	rootCmd.PersistentFlags().BoolP("force", "f", false, "Force delete")
+	rootCmd.PersistentFlags().StringVarP(&promptFile, "prompt", "p", "", "Prompt file")
+	rootCmd.PersistentFlags().StringVarP(&promptName, "name", "n", "", "The name of the promptable to load")
+	rootCmd.PersistentFlags().StringVarP(&promptDescription, "description", "d", "", "Prompt description")
 
-    // Add a version flag
-    rootCmd.Version = "0.0.1"
+	// Add a version flag
+	rootCmd.Version = "0.0.1"
 
 }
 
 func main() {
-    Execute()
+    fmt.Println("Waiting for debugger to attach. Press ENTER to continue...")
+    fmt.Printf("Current Process ID: %d\n", os.Getpid())
+    bufio.NewReader(os.Stdin).ReadBytes('\n')
+	Execute()
 }
-
-
