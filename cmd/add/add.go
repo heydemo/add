@@ -42,7 +42,7 @@ var giCmd = &cobra.Command{
 	Short: "Force include file generation",
 	Long:  "Regenerates the include files used by add including alias files",
 	Run: func(cmd *cobra.Command, args []string) {
-        add.GenerateInclude(configEnv)
+		add.GenerateInclude(configEnv)
 		add.GenerateAliases(configEnv)
 	},
 }

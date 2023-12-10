@@ -3,62 +3,62 @@ package addmain
 import (
 	"fmt"
 	"os"
-    "os/user"
+	"os/user"
 	"path/filepath"
 	"strings"
 )
 
 func GenerateInclude(configEnv *ConfigEnv) {
-    filePath := filepath.Join(configEnv.State_dir, "include.sh")
-    writeContent(filePath, getIncludeShContent(configEnv))
+	filePath := filepath.Join(configEnv.State_dir, "include.sh")
+	writeContent(filePath, getIncludeShContent(configEnv))
 }
 
 func getIncludeShContent(configEnv *ConfigEnv) string {
-    var content string = ""
+	var content string = ""
 
-    if configEnv.Include_bin_dirs_in_path {
-        content += fmt.Sprintf("export PATH=$PATH:%s:%s:%s\n",
-            configEnv.User_bin_dir,
-            configEnv.Public_bin_dir,
-            configEnv.Core_bin_dir)
-    }
+	if configEnv.Include_bin_dirs_in_path {
+		content += fmt.Sprintf("export PATH=$PATH:%s:%s:%s\n",
+			configEnv.User_bin_dir,
+			configEnv.Public_bin_dir,
+			configEnv.Core_bin_dir)
+	}
 
 	content += "export ADD_INSTALLED=1\n"
 
-    content += "source " + filepath.Join(configEnv.State_dir, "aliases.sh") + "\n"
+	content += "source " + filepath.Join(configEnv.State_dir, "aliases.sh") + "\n"
 
-    return content
+	return content
 
 }
 
 func getAliasIncludeContent(configEnv *ConfigEnv) string {
-    var content string
+	var content string
 
-    files := getExecutables(configEnv)
+	files := getExecutables(configEnv)
 
-    for _, file := range files {
-        content += fmt.Sprintf("alias %s='add x %s'\n", file, file)
-    }
+	for _, file := range files {
+		content += fmt.Sprintf("alias %s='add x %s'\n", file, file)
+	}
 
-    return content
+	return content
 
 }
 
 func getExecutables(configEnv *ConfigEnv) []string {
-    dirs := []string{configEnv.User_bin_dir, configEnv.Core_bin_dir, configEnv.Public_bin_dir}
-    var executables []string
-    for _, dir := range dirs {
-        files, err := os.ReadDir(dir)
-        if err != nil {
-            panic(err)
-        }
-        for _, file := range files {
-            if !file.IsDir() {
-                executables = append(executables, file.Name())
-            }
-        }
-    }
-    return executables
+	dirs := []string{configEnv.User_bin_dir, configEnv.Core_bin_dir, configEnv.Public_bin_dir}
+	var executables []string
+	for _, dir := range dirs {
+		files, err := os.ReadDir(dir)
+		if err != nil {
+			panic(err)
+		}
+		for _, file := range files {
+			if !file.IsDir() {
+				executables = append(executables, file.Name())
+			}
+		}
+	}
+	return executables
 }
 
 func writeContent(filePath string, content string) {
@@ -71,12 +71,11 @@ func writeContent(filePath string, content string) {
 	file.WriteString(content)
 }
 
-
 func determineProfileFile() string {
-    usr, err := user.Current()
-    if err != nil {
-        panic(err)
-    }
+	usr, err := user.Current()
+	if err != nil {
+		panic(err)
+	}
 	candidates := []string{".bashrc", ".bash_profile", ".profile", ".zshrc"}
 	for _, candidate := range candidates {
 		expandedPath := usr.HomeDir + "/" + candidate
@@ -84,7 +83,7 @@ func determineProfileFile() string {
 			return expandedPath
 		}
 	}
-    panic("Could not find a profile file to install to.")
+	panic("Could not find a profile file to install to.")
 }
 
 func confirmInstallPrompt(profileFile string) bool {
@@ -95,29 +94,29 @@ func confirmInstallPrompt(profileFile string) bool {
 }
 
 func GenerateAliases(configEnv *ConfigEnv) {
-    filePath := filepath.Join(configEnv.State_dir, "aliases.sh")
-    writeContent(filePath, getAliasIncludeContent(configEnv))
+	filePath := filepath.Join(configEnv.State_dir, "aliases.sh")
+	writeContent(filePath, getAliasIncludeContent(configEnv))
 }
 
 func Bootstrap() (bool, *ConfigEnv) {
 	configEnv := GetConfigEnv()
-    freshInstall := false
+	freshInstall := false
 
 	isInstalled := os.Getenv("ADD_INSTALLED") == "1"
 	includeShPath := filepath.Join(configEnv.State_dir, "include.sh")
 	aliasesPath := filepath.Join(configEnv.State_dir, "aliases.sh")
 
 	if _, err := os.Stat(includeShPath); os.IsNotExist(err) {
-	    filePath := filepath.Join(configEnv.State_dir, "include.sh")
+		filePath := filepath.Join(configEnv.State_dir, "include.sh")
 		writeContent(filePath, getIncludeShContent(configEnv))
 	}
 
-    if _, err := os.Stat(aliasesPath); os.IsNotExist(err) {
-        GenerateAliases(configEnv)
-    }
+	if _, err := os.Stat(aliasesPath); os.IsNotExist(err) {
+		GenerateAliases(configEnv)
+	}
 
 	if !isInstalled {
-        freshInstall = true
+		freshInstall = true
 		profileFile := determineProfileFile()
 		if profileFile == "" {
 			fmt.Println("Could not find a profile file to install to")

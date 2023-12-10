@@ -28,15 +28,15 @@ func Subproc(command string, args ...string) {
 }
 
 func SubprocWithEnv(command string, env []string, args ...string) {
-    var cmd *exec.Cmd = exec.Command(command, args...)
-    cmd.Env = env
+	var cmd *exec.Cmd = exec.Command(command, args...)
+	cmd.Env = env
 
 	// Attach file descriptors
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-    fmt.Println("Execute: ", command, args)
+	fmt.Println("Execute: ", command, args)
 
 	if err := cmd.Start(); err != nil {
 		log.Print("Failed to start: ", err, "\n")

@@ -1,11 +1,11 @@
 package addmain
 
 import (
-    "fmt"
-    "encoding/json"
+	"encoding/json"
+	"fmt"
 )
 
 func PrettyPrint(v interface{}) {
-    b, _ := json.MarshalIndent(v, "", "  ")
-    fmt.Println(string(b))
+	b, _ := json.MarshalIndent(v, "", "  ")
+	fmt.Println(string(b))
 }

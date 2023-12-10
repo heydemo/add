@@ -1,23 +1,20 @@
 package addmain
 
 import (
-    "testing"
-    "fmt"
+	"fmt"
+	"testing"
 )
 
 func TestBootstrap(t *testing.T) {
-    _, configEnv := Bootstrap()
-    if configEnv == nil {
-        t.Errorf("ConfigEnv is nil")
-    }
+	_, configEnv := Bootstrap()
+	if configEnv == nil {
+		t.Errorf("ConfigEnv is nil")
+	}
 
-    aliases := getAliasIncludeContent(configEnv)
-    fmt.Println(aliases)
-    if aliases == "" {
-        t.Errorf("Alias content is empty")
-    }
+	aliases := getAliasIncludeContent(configEnv)
+	fmt.Println(aliases)
+	if aliases == "" {
+		t.Errorf("Alias content is empty")
+	}
 
 }
-
-
-
