@@ -37,11 +37,12 @@ var xCmd = &cobra.Command{
 	},
 }
 
-var gaCmd = &cobra.Command{
-	Use:   "ga",
-	Short: "Force alias generation",
-	Long:  "Generates aliases for all scripts",
+var giCmd = &cobra.Command{
+	Use:   "gi",
+	Short: "Force include file generation",
+	Long:  "Regenerates the include files used by add including alias files",
 	Run: func(cmd *cobra.Command, args []string) {
+        add.GenerateInclude(configEnv)
 		add.GenerateAliases(configEnv)
 	},
 }
@@ -113,7 +114,7 @@ func init() {
 	rootCmd.AddCommand(lCmd)
 	rootCmd.AddCommand(cCmd)
 	rootCmd.AddCommand(dCmd)
-	rootCmd.AddCommand(gaCmd)
+	rootCmd.AddCommand(giCmd)
 
 	rootCmd.PersistentFlags().BoolP("force", "f", false, "Force delete")
 
@@ -122,9 +123,7 @@ func init() {
 }
 
 func main() {
-	// if --debug is in the args, wait for debugger to attach
-	fmt.Println(os.Args)
-	if os.Getenv("DEBUG") == "true" {
+	if os.Getenv("ADD_DEBUG") == "true" {
 		fmt.Println("Waiting for debugger to attach. Press ENTER to continue...")
 		fmt.Printf("Current Process ID: %d\n", os.Getpid())
 		bufio.NewReader(os.Stdin).ReadBytes('\n')

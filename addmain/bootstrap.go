@@ -8,12 +8,20 @@ import (
 	"strings"
 )
 
+func GenerateInclude(configEnv *ConfigEnv) {
+    filePath := filepath.Join(configEnv.State_dir, "include.sh")
+    writeContent(filePath, getIncludeShContent(configEnv))
+}
+
 func getIncludeShContent(configEnv *ConfigEnv) string {
     var content string = ""
 
-    //	content += fmt.Sprintf("export PATH=$PATH:%s:%s\n",
-    //                            configEnv.User_bin_dir,
-    //                            configEnv.public_bin_dir)
+    if configEnv.Include_bin_dirs_in_path {
+        content += fmt.Sprintf("export PATH=$PATH:%s:%s:%s\n",
+            configEnv.User_bin_dir,
+            configEnv.Public_bin_dir,
+            configEnv.Core_bin_dir)
+    }
 
 	content += "export ADD_INSTALLED=1\n"
 

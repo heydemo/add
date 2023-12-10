@@ -7,11 +7,11 @@ import (
     "strings"
 )
 
+// Add a new script to our local library
 func Add(filename string, configEnv *ConfigEnv) {
     path := filepath.Join(configEnv.User_bin_dir, filename)
     editor := GetEditor()
 
-    // If file does not exist, create it
     if _, err := os.Stat(path); os.IsNotExist(err) {
         metadata := PromptForMetadata()
         os.WriteFile(path, []byte(formatMetadata(metadata)), 0644)
@@ -19,12 +19,9 @@ func Add(filename string, configEnv *ConfigEnv) {
     }
 
     Subproc(editor, path)
-    // make path executable
     os.Chmod(path, 0755)
-    //fmt.Println("Wrote file to", path)
 
     GenerateAliases(configEnv)
-    PrettyPrint(editor)
 
 }
 

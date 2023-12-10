@@ -35,8 +35,6 @@ func extractMetadata(filename string) Metadata {
 func PromptForMetadata() Metadata {
     var metadata Metadata
     metadata.Description = promptForString("Description: ")
-    tagString := promptForString("Tags (command separated): ")
-    metadata.Tags = strings.Split(tagString, ",")
     return metadata
 }
 
@@ -91,7 +89,9 @@ func extractSection(filename, marker string) (string, error) {
 func formatMetadata(metadata Metadata) string {
     var content string = "#!/bin/bash\n"
     content += "#-# description: " + metadata.Description + "\n"
-    content += "#-# tags: " + strings.Join(metadata.Tags, ",") + "\n"
+    if len(metadata.Tags) > 0 {
+        content += "#-# tags: " + strings.Join(metadata.Tags, ",") + "\n"
+    }
 
     return content
 }
