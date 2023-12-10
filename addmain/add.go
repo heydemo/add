@@ -23,7 +23,7 @@ func Add(filename string, configEnv *ConfigEnv) {
     os.Chmod(path, 0755)
     //fmt.Println("Wrote file to", path)
 
-    //GenerateAliases(configEnv)
+    GenerateAliases(configEnv)
     PrettyPrint(editor)
 
 }
@@ -47,8 +47,6 @@ func ConfirmPrompt(prompt string) bool {
     return strings.ToLower(response) == "y"
 }
 
-
-
 func Execute(script string, args []string, configEnv *ConfigEnv) {
     fmt.Println("Executing", script)
     path := FindExecutable(script, configEnv)
@@ -58,9 +56,7 @@ func Execute(script string, args []string, configEnv *ConfigEnv) {
     }
 
     metadata := extractMetadata(path)
-    final_args := populatePromptables(metadata.Promptables, args, configEnv)
-    PrettyPrint(metadata)
-    PrettyPrint(final_args)
+    final_args, env := populatePromptables(metadata.Promptables, args, configEnv)
 
-    Subproc(path, args...)
+    SubprocWithEnv(path, env, final_args...)
 }
