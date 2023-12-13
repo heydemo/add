@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// Add a new script to our local library
+// Add a new script to our local script library
 func Add(filename string, configEnv *ConfigEnv) {
 	path := filepath.Join(configEnv.User_bin_dir, filename)
 	editor := GetEditor()
@@ -45,7 +45,6 @@ func ConfirmPrompt(prompt string) bool {
 }
 
 func Execute(script string, args []string, configEnv *ConfigEnv) {
-	fmt.Println("Executing", script)
 	path := FindExecutable(script, configEnv)
 	if path == "" {
 		fmt.Println("Script not found")

@@ -32,21 +32,24 @@ func (p PromptableOption) String() string {
 // Given a list of promptables and a list of arguments, prompt the user
 // for the values of the promptables which are not already provided
 func populatePromptables(promptables []Promptable, args []string, configEnv *ConfigEnv) (fargs, environ []string) {
-	var final_args []string = make([]string, len(promptables))
+	var final_args []string = make([]string, max(len(promptables), len(args)))
 	copy(final_args, args)
 
 	var final_options []PromptableOption = make([]PromptableOption, len(promptables))
 
 	env := os.Environ()
 
-	for index, promptable := range promptables[len(args):] {
-		option := promptForPromptable(promptable, configEnv)
-		final_args[index] = option.Value
-		final_options = append(final_options, option)
-		env = append(env, getOptionEnvVars(option)...)
+	if len(promptables) > len(args) {
+		for index, promptable := range promptables[len(args):] {
+			option := promptForPromptable(promptable, configEnv)
+			final_args[index] = option.Value
+			final_options = append(final_options, option)
+			env = append(env, getOptionEnvVars(option)...)
+		}
+		return final_args, env
 	}
 
-	return final_args, env
+	return args, env
 }
 
 func getOptionEnvVars(option PromptableOption) []string {

@@ -1,7 +1,6 @@
 package addmain
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -35,8 +34,6 @@ func SubprocWithEnv(command string, env []string, args ...string) {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-
-	fmt.Println("Execute: ", command, args)
 
 	if err := cmd.Start(); err != nil {
 		log.Print("Failed to start: ", err, "\n")

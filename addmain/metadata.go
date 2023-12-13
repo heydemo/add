@@ -60,7 +60,6 @@ func extractSection(filename, marker string) (string, error) {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		fmt.Println("line: " + line)
 
 		if strings.HasPrefix(line, marker) {
 			if !extract {
@@ -90,6 +89,7 @@ func formatMetadata(metadata Metadata) string {
 	if len(metadata.Tags) > 0 {
 		content += "#-# tags: " + strings.Join(metadata.Tags, ",") + "\n"
 	}
+	content += "\n"
 
 	return content
 }
