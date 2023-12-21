@@ -18,7 +18,7 @@ type Metadata struct {
 func extractMetadata(filename string) Metadata {
 	var metadata Metadata
 
-	mdString, err := extractSection(filename, "#~~#")
+	mdString, err := extractSection(filename)
 	if err != nil {
 		panic(err)
 	}
@@ -47,7 +47,11 @@ func promptForString(prompt string) string {
 
 // Extracts part of a file between two markers - defined by marker
 // Removes the leading # from each line
-func extractSection(filename, marker string) (string, error) {
+func extractSection(filename string) (string, error) {
+
+	extractMarker := "#~~#"
+	skipMarker := "#---#"
+
 	file, err := os.Open(filename)
 	if err != nil {
 		return "", err
@@ -56,21 +60,24 @@ func extractSection(filename, marker string) (string, error) {
 
 	scanner := bufio.NewScanner(file)
 	var extract bool = false
+	var skip bool = false
 	var result strings.Builder
 
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		if strings.HasPrefix(line, marker) {
+		if strings.HasPrefix(line, extractMarker) {
 			if !extract {
 				extract = true
 				continue
 			} else {
 				break
 			}
+		} else if strings.HasPrefix(line, skipMarker) {
+			skip = true
 		}
 
-		if extract {
+		if extract && !skip {
 			result.WriteString(strings.Trim(line, "#") + "\n")
 		}
 	}
