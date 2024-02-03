@@ -4,10 +4,12 @@ package addmain
 
 import (
 	"fmt"
-	"github.com/erikgeiser/promptkit/selection"
-	"gopkg.in/yaml.v2"
 	"os"
 	"path/filepath"
+	"strings"
+
+	"github.com/erikgeiser/promptkit/selection"
+	"gopkg.in/yaml.v2"
 )
 
 // An argument to a script which is promptable
@@ -15,6 +17,10 @@ type Promptable struct {
 	Name        string
 	Description string
 	Type        string
+}
+
+func (p Promptable) getVarName() string {
+	return "p_" + p.Name
 }
 
 // Represents a selectable option
@@ -27,6 +33,45 @@ type PromptableOption struct {
 
 func (p PromptableOption) String() string {
 	return p.Label
+}
+
+type PromptableFile struct {
+	Promptable Promptable
+	Options    []PromptableOption
+}
+
+// Create file for promptable definition
+func WritePromptableFile(p Promptable, options []PromptableOption, configEnv *ConfigEnv) {
+	content := "description: " + p.Description + "\n"
+	content += "options:\n"
+	for _, option := range options {
+		content += "  - label: " + option.Label + "\n"
+		content += "    value: " + option.Value + "\n"
+		content += "    props:\n"
+		for key, value := range option.Props {
+			content += "      " + key + ": " + value + "\n"
+		}
+	}
+
+	filename := filepath.Join(configEnv.Promptable_dir, p.Name) + ".yml"
+	os.WriteFile(filename, []byte(content), 0644)
+}
+
+func ReadPromptableFile(name string, configEnv *ConfigEnv) PromptableFile {
+	filename := filepath.Join(configEnv.Promptable_dir, name) + ".yml"
+	file := PromptableFile{}
+
+	contents, err := os.ReadFile(filename)
+	if err != nil {
+		panic(err)
+	}
+
+	err = yaml.Unmarshal(contents, &file)
+	if err != nil {
+		panic(err)
+	}
+
+	return file
 }
 
 // Given a list of promptables and a list of arguments, prompt the user
@@ -111,4 +156,29 @@ func Prompt(promptable Promptable, options []PromptableOption) PromptableOption 
 	PrettyPrint(choice)
 	return choice
 
+}
+
+func GetPromptableTypes(configEnv *ConfigEnv) []string {
+	files, err := os.ReadDir(configEnv.Promptable_dir)
+	if err != nil {
+		panic(err)
+	}
+	var types []string
+	for _, file := range files {
+		types = append(types, strings.TrimSuffix(file.Name(), ".yml"))
+	}
+	return types
+
+}
+
+func CreatePromptableType(name string, configEnv *ConfigEnv) {
+	template, err := Templates.ReadFile("templates/promptable-options.yml")
+	if err != nil {
+		panic(err)
+	}
+
+	err = os.WriteFile(filepath.Join(configEnv.Promptable_dir, name+".yml"), template, 0644)
+	if err != nil {
+		panic(err)
+	}
 }

@@ -4,7 +4,6 @@ Copyright © 2023 John De Mott
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
@@ -119,14 +118,10 @@ func init() {
 	rootCmd.PersistentFlags().BoolP("force", "f", false, "Force delete")
 
 	// Add a version flag
-	rootCmd.Version = "0.0.1"
+	rootCmd.Version = "0.0.2"
 }
 
 func main() {
-	if os.Getenv("ADD_DEBUG") == "true" {
-		fmt.Println("Waiting for debugger to attach. Press ENTER to continue...")
-		fmt.Printf("Current Process ID: %d\n", os.Getpid())
-		bufio.NewReader(os.Stdin).ReadBytes('\n')
-	}
+	add.Debug()
 	Execute()
 }

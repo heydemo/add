@@ -1,0 +1,11 @@
+description:
+options:
+  - label: Option 1
+    value: option_1
+    props:
+      example_prop: example_value
+  - label: Option 2
+    value: option_2
+    props:
+      example_prop: example_value
+

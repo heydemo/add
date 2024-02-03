@@ -14,8 +14,9 @@ func Add(filename string, configEnv *ConfigEnv) {
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		metadata := PromptForMetadata()
-		os.WriteFile(path, []byte(formatMetadata(metadata)), 0644)
-		PrettyPrint(metadata)
+		content := "#!/bin/bash\n"
+		content += FormatMetadata(metadata)
+		os.WriteFile(path, []byte(content), 0644)
 	}
 
 	Subproc(editor, path)
@@ -51,7 +52,7 @@ func Execute(script string, args []string, configEnv *ConfigEnv) {
 		os.Exit(1)
 	}
 
-	metadata := extractMetadata(path)
+	metadata := ReadMetadata(path)
 	final_args, env := populatePromptables(metadata.Promptables, args, configEnv)
 
 	SubprocWithEnv(path, env, final_args...)
